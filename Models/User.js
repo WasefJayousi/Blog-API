@@ -8,10 +8,9 @@ const userSchema = new Schema({
   Password: { type: String, required: true, maxLength: 256, minLength: 8 },
   isAdmin: { type: Boolean, default: false },
   created_at: { type: Date, default: Date.now },
-  refreshToken: String,
 });
 userSchema.virtual("Date_formatted").get(function() {
-DateTime.Format() //complete it
+return DateTime.Format(this.created_at) //complete it
 });
 const User = mongoose.model('User', userSchema);
 

@@ -18,7 +18,7 @@ const commentSchema = new Schema({
 
 })
 commentSchema.virtual("Date_formatted").get(function() {
-DateTime.Format() //complete it
+    return DateTime.Format(this.Created_At) //complete it
 });
 
 module.exports = mongoose.model("Comment" , commentSchema)

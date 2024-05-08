@@ -9,11 +9,11 @@ const PostSchema = new Schema({
     PostDescription: {type:String , required:true , min:10 , maxLenght:250},
     likes : Number,
     Date : {type:Date , default:Date.now},
-    isPublic : {type:boolean , default:false}
+    isPublic : {type:Boolean , default:false}
 })
 
 PostSchema.virtual("Date_formatted").get(function() {
-DateTime.Format() //complete it
+    return DateTime.Format(this.Date) //complete it
 });
 const Post = mongoose.model('Post', PostSchema);
 
