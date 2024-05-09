@@ -34,7 +34,7 @@ exports.Add_comment = [
                 Text: text,
                 ParentComment:ParrentCommentID
             })
-            const parentComment = await Comment.findById(ParrentCommentID);
+            const parentComment = await Comment.findById(ParrentCommentID).exec();
             parentComment.replies.push(reply._id);
             await parentComment.save();
         }
@@ -87,7 +87,7 @@ exports.Edit_Comment = [
 exports.Delete_comment = asyncHandler(async(req,res,next)=>
 {
     const {PostID , CommentID} = req.params
-    const comment = await Comment.findOne({_id:CommentID})
+    const comment = await Comment.findOne({_id:CommentID}).exec()
     if(!comment)
     {
         return res.status(404).json({ message: "Comment not found" });
