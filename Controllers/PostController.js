@@ -60,13 +60,16 @@ exports.Details = asyncHandler(async(req,res,next)=>{
 exports.Search = asyncHandler(async(req,res,next)=>{
     const Term = req.query.text;
 
-    const Search = Post.find({
+    const Search = await Post.find({
+        $and:[ 
+            {isPublic:true},
+            {
         $or: [
             {PostTitle:  {$regex:Term , $option: 'i'}}, //Case-Insensitive
             {User: {$regex:req.user.Username , $option: 'i'}}
-        ]
+        ]}]
     }).exec()
-    if(!Search){
+    if(Search.length === 0 ){
         return res.status(404).json({message:"Post Was not found!"})
     }
     return res.status(200).json({Search:Search})
