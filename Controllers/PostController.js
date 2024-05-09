@@ -37,7 +37,7 @@ exports.Create = [
 
 ]
 exports.list = asyncHandler(async(req,res,next)=>{
-    const posts = await Post.find({}).sort({PostTitle:-1}).populate("User").exec();
+    const posts = await Post.find({isPublic:true}).sort({PostTitle:-1}).populate("User").exec();
     if(!posts){
         
         return res.status(404).json({message:"there is no posts"})
