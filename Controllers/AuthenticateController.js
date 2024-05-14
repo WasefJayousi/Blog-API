@@ -5,31 +5,35 @@ const jwt = require("jsonwebtoken")
 const { body, validationResult } = require("express-validator"); // validator and sanitizer
 const asyncHandler = require("express-async-handler");
 const nodemailer = require("nodemailer")
-
+const VerificationEmail = require("../VerificationEmail")
 
 exports.register = [ // Add later a email verifitcation request using nodemailer, temp add on database but no verified in 1 hour it gets deleted.
     body("Username" ,"Required to input Username.").trim().isLength({min:3}).escape()
     .custom(async(Username)=>{
-        try {
-            const usernameExists = await User.findOne({Username:Username}).exec()
-            if(usernameExists)
-                {
-                    return res.status(409).json({message:"Username already Exists"})
-                }
+    try {
+        const usernameExists = await User.findOne({Username:Username}).exec()
+        if(usernameExists){
+                return res.status(409).json({message:"Username already Exists"})
+            }
         } catch (error) {
                 return res.status(404).json({error:error})
         }
     }),
     body("Email" ,"Required to input Email.").trim().isLength({min:15}).escape()
     .custom(async(Email)=>{
-        try {
-            const EmailExists = await User.findOne({Email:Email}).exec()
-            if(EmailExists)
-                {
-                    return res.status(409).json({message:"Email already Exists"})
-                }
+    try {
+        const EmailExists = await User.findOne({Email:Email}).exec()
+        if(EmailExists)
+            {
+                return res.status(409).json({message:"Email already Exists"})
+            }
+    const payload = {
+        email: EmailExists.Email,
+    }
+    const VerificationToken = jwt.sign(payload ,process.env.JWT_SECRET , {expiresIn:'1h'})
+    VerificationEmail.sendVerificationEmail(EmailExists.Email , VerificationToken)
         } catch (error) {
-                return res.status(404).json({error:error})
+            return res.status(404).json({error:error})
         }
     }),
     body("Password" , "Required to input Password").trim().isLength({min:8}).escape(),
@@ -43,6 +47,13 @@ exports.register = [ // Add later a email verifitcation request using nodemailer
                         errors : errors.array()
                     })
             }
+        const { verificationToken } = req; // Access verification token from previous middleware
+
+        // Verify Email using the verification token
+        const decodedToken = jwt.verify(verificationToken, process.env.JWT_SECRET);
+        if (decodedToken.email !== req.body.Email) {
+            throw new Error('Invalid verification token');
+        }
         const HashedPassword = await bcrypt.hash(req.body.Password);
 //add it here
         const user = new User({
@@ -166,7 +177,6 @@ exports.forgot_password = [
             align-item: center !importent;
           }
       </style>
-              <img src="cid:logo" alt="Your Logo" style="max-width: 200px; text-align: center; width: 200px;">
               
               <h1>Password Reset</h1>
               <p>You are receiving this because you (or someone else) have requested the reset of the password for your account.</p>

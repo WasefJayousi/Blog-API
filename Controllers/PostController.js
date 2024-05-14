@@ -3,6 +3,8 @@ const Comment = require("../Models/Comment");
 const { body, validationResult } = require("express-validator"); // validator and sanitizer
 const asyncHandler = require("express-async-handler");
 const {upload} = require("../Multer-config")
+const fsPromises = require("fs").promises
+const path = require("path");
 
 exports.Create = [
     upload.fields([
@@ -91,12 +93,12 @@ exports.Incrementlikes = asyncHandler(async(req,res,next)=>
 
 exports.Delete = asyncHandler(async(req,res,next)=>{
     const DeletePost = Post.findById(req.params.id).populate("User").populate("Comment").exec()
-
     if(!DeletePost){
         return res.status(404).json({message:"Deleted or not found"})
     }
     if(req.user._id == DeletePost.User._id){
-        await Comment.deleteMany({Post:DeletePost._id}).exec()
+        await fsPromises.unlink(DeletePost.img) // deleting the file
+        await Comment.deleteMany({Post:DeletePost._id}).exec();
         const result = await Post.deleteOne({_id: DeletePost._id}).exec()
         
         if(result.deletedCount > 0){
