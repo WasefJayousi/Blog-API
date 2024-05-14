@@ -6,7 +6,10 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require("mongoose");
 const cors = require("cors");
-
+const AuthRouter = require("./routes/AuthRouter")
+const CommentRouter = require("./routes/CommentRouter")
+const PostRouter = require("./routes/PostRouter")
+const UserProfileRouter = require("./routes/UserProfileRouter")
 // Set `strictQuery: false` to globally opt into filtering by properties that aren't in the schema
 // Included because it removes preparatory warnings for Mongoose 7.
 // See: https://mongoosejs.com/docs/migrating_to_6.html#strictquery-is-removed-and-replaced-by-strict
@@ -49,7 +52,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
+app.use('/api_Authentication',AuthRouter)
+app.use('/api_Comment',CommentRouter)
+app.use('/api_Post' , PostRouter)
+app.use('api_Profile' , UserProfileRouter)
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
