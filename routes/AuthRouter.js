@@ -3,8 +3,11 @@ const auth = require('../Controllers/AuthenticateController')
 const passport = require('passport');
 const router = express.Router();
 
+
+//VerificationToken 
+router.post('/VerificationEmail' , auth.sendVerificationEmail)
 // Register route/middleware
-router.post('/register', auth.register);
+router.post('/register', auth.completeRegistration);
 //login route/middleware
 router.post('/login' ,auth.login )
 //forgot-password

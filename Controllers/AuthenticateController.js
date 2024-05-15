@@ -6,79 +6,93 @@ const { body, validationResult } = require("express-validator"); // validator an
 const asyncHandler = require("express-async-handler");
 const nodemailer = require("nodemailer")
 const VerificationEmail = require("../VerificationEmail")
+exports.sendVerificationEmail = [
+    body("Email" ,"Email Required.").trim().isLength({min:5}).escape(),
+    asyncHandler(async(req,res,next)=>
+    {
+        const errors = validationResult(req);
 
-exports.register = [ // Add later a email verifitcation request using nodemailer, temp add on database but no verified in 1 hour it gets deleted.
-    body("Username" ,"Required to input Username.").trim().isLength({min:3}).escape()
-    .custom(async(Username)=>{
-    try {
-        const usernameExists = await User.findOne({Username:Username}).exec()
-        if(usernameExists){
-                return res.status(409).json({message:"Username already Exists"})
-            }
-        } catch (error) {
-                return res.status(404).json({error:error})
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
-    }),
-    body("Email" ,"Required to input Email.").trim().isLength({min:15}).escape()
-    .custom(async(Email)=>{
-    try {
-        const EmailExists = await User.findOne({Email:Email}).exec()
-        if(EmailExists)
-            {
-                return res.status(409).json({message:"Email already Exists"})
-            }
-    const payload = {
-        email: EmailExists.Email,
-    }
-    const VerificationToken = jwt.sign(payload ,process.env.JWT_SECRET , {expiresIn:'1h'})
-    VerificationEmail.sendVerificationEmail(EmailExists.Email , VerificationToken)
-        } catch (error) {
-            return res.status(404).json({error:error})
-        }
-    }),
-    body("Password" , "Required to input Password").trim().isLength({min:8}).escape(),
-    asyncHandler(async(req,res,next)=>{
-        const errors  = validationResult(req)
-        if(!errors.isEmpty())
-            {
-                return res.status(403).json(
-                    {
-                        username : req.body.Username,
-                        errors : errors.array()
-                    })
-            }
-        const { verificationToken } = req; // Access verification token from previous middleware
 
-        // Verify Email using the verification token
-        const decodedToken = jwt.verify(verificationToken, process.env.JWT_SECRET);
-        if (decodedToken.email !== req.body.Email) {
-            throw new Error('Invalid verification token');
+        const { Email } = req.body;
+        const EmailnameExists = await User.findOne({Email:Email}).exec()
+        if(EmailnameExists){
+            return res.status(409).json({ message: 'Email already Exists' });
         }
-        const HashedPassword = await bcrypt.hash(req.body.Password);
-//add it here
-        const user = new User({
-            Username:req.body.Username,
-            Email:req.body.Email,
-            password: HashedPassword,
-        })
-        await user.save();
-        res.status(201).json({message:"User Created SuccessFully!"})
-})]
+
+        const payload = {
+            email: Email,
+        }
+        const VerificationToken = jwt.sign(payload ,process.env.JWT_SECRET , {expiresIn:'1h'})
+        await VerificationEmail(Email , VerificationToken)
+        res.status(200).json({message:`Verification Email Sent to : ${Email}` , VerificationToken:VerificationToken})
+
+    }) 
+]
+//
+exports.completeRegistration = [
+    body("Username", "Username is required and must be at least 3 characters.")
+        .trim()
+        .isLength({ min: 3 })
+        .escape(),
+    body("Password", "Password must be at least 8 characters long.").trim().isLength({ min: 8 }).escape(),
+    asyncHandler(async (req, res) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+   
+            const { Username, Password } = req.body;
+
+            // Extract the VerificationToken from the Authorization header
+            const authHeader = req.headers['authorization'];
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: 'Authorization header missing or invalid' });
+            }
+            const Verificationtoken = authHeader.split(' ')[1]; // Extract the token part
+
+            // Verify the VerificationToken to retrieve the associated email
+            const decodedToken = jwt.verify(Verificationtoken, process.env.JWT_SECRET);
+            const Email = decodedToken.email; // Extract the email from the token
+
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(Password, 10);
+
+            // Create new user
+            const newUser = new User({
+                Username,
+                Email,
+                Password: hashedPassword,
+                isVerified: true // Mark account as verified
+            });
+
+            // Save user to database
+            await newUser.save();
+
+            // Return JWT token in response
+            res.status(201).json({ message: "User registered successfully" });
+        }) 
+];
+
 
 exports.login = [
     body("UsernameOrEmail" , "Required to input Username.").trim().isLength({min:1}).escape(),
-    body("Passowrd" , "Required to input password.").trim().isLength({min:1}).escape(),
+    body("Password" , "Required to input password.").trim().isLength({min:1}).escape(),
     asyncHandler(async(req,res,next)=>{
         const errors  = validationResult(req)
         if(!errors.isEmpty())
             {
-                return res.status(403).json(
+                return res.status(400).json(
                     {
                         username : req.body.username,
                         errors : errors.array()
                     })
             }
-    const user = await User.findOne($or[{Username:req.body.Username} , {Email:req.body.Email}]).exec()
+    const user = await User.findOne({$or: [{Username:req.body.UsernameOrEmail} , {Email:req.body.UsernameOrEmail}]}).exec()
+
     if(!user){
         return res.status(400).json({message:"Invalid Username Or Password!"})
     }

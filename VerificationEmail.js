@@ -19,7 +19,7 @@ const sendVerificationEmail = async (email, verificationToken) => {
                 <p>Please click the button below to verify your email:</p>
                 <a href="http://localhost:3000/verify/${verificationToken}" style="display:inline-block;padding:10px 20px;background-color:#007bff;color:#ffffff;text-decoration:none;border-radius:5px;">Verify Email</a>
             `
-        };
+        };//Change the http://YouDomain/...
 
         // Send mail with defined transport object
         let info = await transporter.sendMail(mailOptions);
