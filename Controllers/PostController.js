@@ -11,8 +11,8 @@ exports.Create = [
         { name: 'file', maxCount: 1 }, // PDF file
         { name: 'img', maxCount: 1 },  // Image file
         ]),
-    body("PostTitle" , "Post Title must not be empty").trim().length({min:1}).escape(),
-    body("PostDescription" , "Post Description must not be empty").trim().length({min:1}).escape(),
+    body("PostTitle" , "Post Title must not be empty").trim().isLength({min:1}).escape(),
+    body("PostDescription" , "Post Description must not be empty").trim().isLength({min:1}).escape(),
     asyncHandler(async(req,res,next)=>
     {
         const errors = validationResult(req);

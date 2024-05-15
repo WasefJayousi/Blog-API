@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require("mongoose");
 const cors = require("cors");
+const passport = require('passport');
+require("./passport-config")(passport);
 const AuthRouter = require("./routes/AuthRouter")
 const CommentRouter = require("./routes/CommentRouter")
 const PostRouter = require("./routes/PostRouter")
@@ -46,6 +48,8 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+app.use(cors(corsOptions));
+app.use(passport.initialize());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
