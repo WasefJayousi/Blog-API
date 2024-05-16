@@ -36,7 +36,17 @@ exports.completeRegistration = [
     body("Username", "Username is required and must be at least 3 characters.")
         .trim()
         .isLength({ min: 3 })
-        .escape(),
+        .escape()
+        .custom(async(Username)=>{
+            const userExists = await User.findOne({Username:Username}).exec()
+            if(userExists)
+                {
+                    console.log(userExists)
+                    throw new Error("Username Already Exists!")
+                }
+            console.log(userExists)
+
+        }),
     body("Password", "Password must be at least 8 characters long.").trim().isLength({ min: 8 }).escape(),
     asyncHandler(async (req, res) => {
         const errors = validationResult(req);

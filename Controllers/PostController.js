@@ -1,5 +1,6 @@
 const Post = require("../Models/Post");
 const Comment = require("../Models/Comment");
+const User = require("../Models/User");
 const { body, validationResult } = require("express-validator"); // validator and sanitizer
 const asyncHandler = require("express-async-handler");
 const {upload} = require("../Multer-config")
@@ -8,7 +9,6 @@ const path = require("path");
 
 exports.Create = [
     upload.fields([
-        { name: 'file', maxCount: 1 }, // PDF file
         { name: 'img', maxCount: 1 },  // Image file
         ]),
     body("PostTitle" , "Post Title must not be empty").trim().isLength({min:1}).escape(),
@@ -50,8 +50,9 @@ exports.list = asyncHandler(async(req,res,next)=>{
 
 exports.Details = asyncHandler(async(req,res,next)=>{
     const PostId = req.params.id;
-    const Comments = Comment.find({Post:PostId});
-    const PostDetails = Post.findById(PostId).populate("User").exec()
+    const Comments = await Comment.find({Post:PostId}).populate("User").populate({path:'replies',populate:{path:'User'}}).exec();
+    const PostDetails = await Post.findById(PostId).populate("User").exec()
+    if(!Comments){Comments = "Empty"}
     if(!PostDetails)
         {
             return res.status(404).json({message:"Post not Found!"})
@@ -60,26 +61,27 @@ exports.Details = asyncHandler(async(req,res,next)=>{
 })
 
 exports.Search = asyncHandler(async(req,res,next)=>{
-    const Term = req.query.text;
-
-    const Search = await Post.find({
+    const Term = req.query.text.trim();
+    const PostId = req.params.id
+    let SearchedUser = await User.find({Username: new RegExp(Term,'i')}).exec()
+    const SearchResult = await Post.find({
         $and:[ 
             {isPublic:true},
-            {
+            {   
         $or: [
-            {PostTitle:  {$regex:Term , $option: 'i'}}, //Case-Insensitive
-            {User: {$regex:req.user.Username , $option: 'i'}}
-        ]}]
+            {PostTitle:  new RegExp( Term, 'i')}, //Case-Insensitive
+            {User: SearchedUser}
+        ]}]     
     }).exec()
-    if(Search.length === 0 ){
+    if(SearchResult.length === 0 ){
         return res.status(404).json({message:"Post Was not found!"})
     }
-    return res.status(200).json({Search:Search})
+    return res.status(200).json({Search:SearchResult})
 })
 
 exports.Incrementlikes = asyncHandler(async(req,res,next)=>
 {
-    const Incrementpost = Post.findById(req.params.postId).exec()
+    const Incrementpost = await Post.findById(req.params.postId).exec()
 
     if(!Incrementpost)
         {
@@ -89,14 +91,15 @@ exports.Incrementlikes = asyncHandler(async(req,res,next)=>
     await Incrementpost.save()
 
     return res.status(200).json({message:`likes incremented on ${Incrementpost._id}`})
-})
+    //implement if the user already liked this
+})//decrement likes as well implementation
 
 exports.Delete = asyncHandler(async(req,res,next)=>{
-    const DeletePost = Post.findById(req.params.id).populate("User").populate("Comment").exec()
+    const DeletePost = await Post.findOne({_id:req.params.id}).exec()
     if(!DeletePost){
         return res.status(404).json({message:"Deleted or not found"})
     }
-    if(req.user._id == DeletePost.User._id){
+    if(req.user._id.toString() == DeletePost.User._id.toString()){
         await fsPromises.unlink(DeletePost.img) // deleting the file
         await Comment.deleteMany({Post:DeletePost._id}).exec();
         const result = await Post.deleteOne({_id: DeletePost._id}).exec()

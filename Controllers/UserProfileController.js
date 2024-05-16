@@ -9,13 +9,18 @@ const nodemailer = require('nodemailer');
 
 exports.profile = asyncHandler(async(req,res,next)=>{
 
-    const user = await User.findbyId(req.user._id).exec();
+    const user = await User.findById(req.user._id).exec();
     const posts = await Posts.find({User:req.user._id}).exec();
 
     if(!posts){
         posts = "there are no posts for this user"
     }
-    return res.status(200).json({user:user ,posts:posts})
+    if(req.user._id.toString()===user._id.toString())
+        {
+            return res.status(200).json({user:user ,posts:posts})
+        } 
+        return res.status(403).json({message:"not authorized to access this profile"})
+        //accessing a specific profile with specific details is for another route controller // not added
 })
 
 exports.updateProfile =[body('newUsername', 'New Username must be required')
@@ -23,12 +28,6 @@ exports.updateProfile =[body('newUsername', 'New Username must be required')
 .optional()
 .isLength({ min: 1 })
 .escape(),
-body('newEmail', 'New Email must be required')
-.trim()
-.optional()
-.isLength({ min: 1 })
-.escape()
-.isEmail(),
 asyncHandler(async (req, res, next) => {
 const errors = validationResult(req);
 

@@ -59,7 +59,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api_Authentication',AuthRouter)
 app.use('/api_Comment',CommentRouter)
 app.use('/api_Post' , PostRouter)
-app.use('api_Profile' , UserProfileRouter)
+app.use('/api_Profile' , UserProfileRouter)
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -74,6 +74,6 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-});
+}); 
 
 module.exports = app;

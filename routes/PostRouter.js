@@ -12,10 +12,10 @@ router.get("/post-lists" ,Post.list )
 
 router.get("/post-details/:id" ,Post.Details)
 
-router.get("/search/:id" , Post.Search)
+router.get("/search" , Post.Search)
 
-router.post('/posts/:postId/like', passport.authenticate('jwt', { session: false }),Post.Incrementlikes);
+router.post('/Increment-likes/:postId', passport.authenticate('jwt', { session: false }),Post.Incrementlikes);
 
-router.delete("/Delete-post:id" ,passport.authenticate('jwt', { session: false }),Post.Delete )
+router.delete("/Delete-post/:id" ,passport.authenticate('jwt', { session: false }),Post.Delete )
 
 module.exports = router;

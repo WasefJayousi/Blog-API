@@ -6,7 +6,7 @@ const router = express.Router();
 
 
 /* GET users listing. */
-router.get('/profile',passport.authenticate('jwt', { session: false }), Profile.profile);
+router.get('/',passport.authenticate('jwt', { session: false }), Profile.profile);
 
 //Update user email or username
 router.put('/update_profile' , passport.authenticate('jwt', { session: false }) , Profile.updateProfile)
