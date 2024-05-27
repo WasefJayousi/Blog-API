@@ -7,7 +7,7 @@ const logger = require('morgan');
 const mongoose = require("mongoose");
 const cors = require("cors");
 const passport = require('passport');
-require("./passport-config")(passport);
+require("./Configs/passport-config")(passport);
 const AuthRouter = require("./routes/AuthRouter")
 const CommentRouter = require("./routes/CommentRouter")
 const PostRouter = require("./routes/PostRouter")

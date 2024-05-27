@@ -3,7 +3,7 @@ const Comment = require("../Models/Comment");
 const User = require("../Models/User");
 const { body, validationResult } = require("express-validator"); // validator and sanitizer
 const asyncHandler = require("express-async-handler");
-const {upload} = require("../Multer-config")
+const {upload} = require("../Configs/Multer-config")
 const fsPromises = require("fs").promises
 const path = require("path");
 

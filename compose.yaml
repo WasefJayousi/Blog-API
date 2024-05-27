@@ -1,0 +1,28 @@
+version: '3'
+services:
+  server:
+    build:
+      context: .
+      target: dev
+    environment:
+      - NODE_ENV=production
+      - MongoDB_URL
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    env_file: 
+      - .env #assuming that you have an .env file
+    depends_on:
+      - mongo
+    volumes:
+      - .:/app
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

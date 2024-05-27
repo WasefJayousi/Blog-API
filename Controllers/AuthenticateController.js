@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken")
 const { body, validationResult } = require("express-validator"); // validator and sanitizer
 const asyncHandler = require("express-async-handler");
 const nodemailer = require("nodemailer")
-const VerificationEmail = require("../VerificationEmail")
+const VerificationEmail = require("../Configs/VerificationEmail")
 exports.sendVerificationEmail = [
     body("Email" ,"Email Required.").trim().isLength({min:5}).escape(),
     asyncHandler(async(req,res,next)=>

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const{DateTime} = require("../Format-date")
+const{DateTime} = require("../Configs/Format-date")
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
