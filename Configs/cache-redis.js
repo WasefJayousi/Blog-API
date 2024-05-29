@@ -3,12 +3,24 @@ const redis = require("redis");
 const util = require("util");
 
 const client = redis.createClient({
-    host: "127.0.0.1",
+    host: 'redis',
     port: 6379,
     retry_strategy: () => 1000
 });
+client.on("error", function(error) {
+    console.error("Redis client error:", error);
+});
+
+client.on("connect", function() {
+    console.log("Connected to Redis");
+});
+
+client.on("ready", function() {
+    console.log("Redis client ready");
+});
 
 client.hGet = util.promisify(client.hGet);
+client.hSet = util.promisify(client.hSet);
 const exec = mongoose.Query.prototype.exec;
 
 
@@ -29,7 +41,7 @@ mongoose.Query.prototype.exec = async function () {
         ...this.getQuery()
     })
 
-const cacheValue = await client.get(key)
+const cacheValue = await client.hGet(this.hashKey , key)
 
 if(cacheValue) {
     const doc = JSON.parse(cacheValue)

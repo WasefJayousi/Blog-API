@@ -33,9 +33,15 @@ exports.Create = [
                 likes:0,
                 isPublic:isPublic         
         })
-        await newPost.save();
-        clearKey(Post.collection.collectionName)
-        return res.status(201).json({message: "Post Created Successfuly!"})
+        try
+        {
+            await newPost.save();
+            clearKey(Post.collection.collectionName)
+            return res.status(201).json({message: "Post Created Successfuly!"})
+        } catch(err) {
+            res.send(400,err)
+        }
+
     })
 
 ]
