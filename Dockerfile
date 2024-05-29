@@ -3,7 +3,7 @@
 ARG NODE_VERSION=18.18.2
 
 FROM node:${NODE_VERSION}-alpine as base
-WORKDIR /usr/app
+WORKDIR /usr/src/app
 EXPOSE 3000
 
 #mount-bind

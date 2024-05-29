@@ -4,6 +4,7 @@ const User = require("../Models/User");
 const { body, validationResult } = require("express-validator"); // validator and sanitizer
 const asyncHandler = require("express-async-handler");
 const {upload} = require("../Configs/Multer-config")
+const {clearKey} = require("../Configs/cache-redis")
 const fsPromises = require("fs").promises
 const path = require("path");
 
@@ -33,7 +34,7 @@ exports.Create = [
                 isPublic:isPublic         
         })
         await newPost.save();
-
+        clearKey(Post.collection.collectionName)
         return res.status(201).json({message: "Post Created Successfuly!"})
     })
 
@@ -72,7 +73,7 @@ exports.Search = asyncHandler(async(req,res,next)=>{
             {PostTitle:  new RegExp( Term, 'i')}, //Case-Insensitive
             {User: SearchedUser}
         ]}]     
-    }).exec()
+    }).cache().exec()
     if(SearchResult.length === 0 ){
         return res.status(404).json({message:"Post Was not found!"})
     }
