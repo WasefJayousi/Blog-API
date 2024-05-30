@@ -1,4 +1,6 @@
 # Blog-API
+# Docker
+You need docker desktop installed first
 #
 # To run Docker and build image
 (Terminal): docker compose -d up --build
