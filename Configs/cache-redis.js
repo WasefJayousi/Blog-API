@@ -23,8 +23,7 @@ const client = redis.createClient({
     }
 })();
 
-client.hGet = util.promisify(client.hGet);
-client.hSet = util.promisify(client.hSet);
+
 const exec = mongoose.Query.prototype.exec;
 
 

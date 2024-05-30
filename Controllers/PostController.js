@@ -79,7 +79,7 @@ exports.Search = asyncHandler(async(req,res,next)=>{
             {PostTitle:  new RegExp( Term, 'i')}, //Case-Insensitive
             {User: SearchedUser}
         ]}]     
-    }).cache().exec()
+    }).cache()
     if(SearchResult.length === 0 ){
         return res.status(404).json({message:"Post Was not found!"})
     }
