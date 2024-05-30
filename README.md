@@ -7,5 +7,5 @@
 Terminal: docker compose down
 #
 # to start it again after build
-Terminal : docker compose down 
+Terminal : docker compose up -d
 #
