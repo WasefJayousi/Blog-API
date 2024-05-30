@@ -1,6 +1,11 @@
 # Blog-API
-To run using docker (Terminal): docker compose -d up / dockercompose -d up --build
 #
-to run locally without docker (Terminal): npm install -> npm start / npm dev / npm serverstart
+# To run Docker and build image
+(Terminal): docker compose -d up --build
 #
-or install and run nodemon globally : npm install -g nodemon -> (terminal) nodemon
+# Stop and delete docker container (compose)
+Terminal: docker compose down
+#
+# to start it again after build
+Terminal : docker compose down 
+#

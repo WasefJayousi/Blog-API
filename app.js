@@ -1,5 +1,5 @@
 require('dotenv').config();
-require("./Configs/cache-redis")
+require("./Configs/cache-redis");
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -9,13 +9,14 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const passport = require('passport');
 require("./Configs/passport-config")(passport);
+
 const AuthRouter = require("./routes/AuthRouter")
 const CommentRouter = require("./routes/CommentRouter")
 const PostRouter = require("./routes/PostRouter")
 const UserProfileRouter = require("./routes/UserProfileRouter")
-// Set `strictQuery: false` to globally opt into filtering by properties that aren't in the schema
-// Included because it removes preparatory warnings for Mongoose 7.
-// See: https://mongoosejs.com/docs/migrating_to_6.html#strictquery-is-removed-and-replaced-by-strict
+
+
+
 mongoose.set("strictQuery", false);
 
 // Define the database URL to connect to.

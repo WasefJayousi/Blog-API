@@ -1,23 +1,27 @@
+require("dotenv").config()
 const mongoose = require("mongoose");
 const redis = require("redis");
 const util = require("util");
 
 const client = redis.createClient({
-    host: 'redis',
-    port: 6379,
+    url: `redis://${process.env.RedisHost}:6379`,
     retry_strategy: () => 1000
 });
-client.on("error", function(error) {
-    console.error("Redis client error:", error);
-});
+(async () => {
+    try {
+        await client.connect();
+        await client.ping();
+        console.log("Connected to Redis");
 
-client.on("connect", function() {
-    console.log("Connected to Redis");
-});
+        // Perform a basic test to confirm connection
+        await client.set('test', 'Redis connection successful');
+        const value = await client.get('test');
+        console.log("Test value from Redis:", value);  // Should log: "Test value from Redis: Redis connection successful"
 
-client.on("ready", function() {
-    console.log("Redis client ready");
-});
+    } catch (err) {
+        console.error("Could not connect to Redis", err);
+    }
+})();
 
 client.hGet = util.promisify(client.hGet);
 client.hSet = util.promisify(client.hSet);
@@ -63,5 +67,5 @@ return results
 module.exports = {
     clearKey(hashKey){
         client.del(JSON.stringify(hashKey))
-    }
-}
+    },
+};
