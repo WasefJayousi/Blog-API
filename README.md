@@ -11,3 +11,8 @@ Terminal: docker compose down
 # to start it again after build
 Terminal : docker compose up -d
 #
+#Set up You're own .env file:
+mongo_url
+redis_url
+jwt_secret
+email-password-for-nodemailer
