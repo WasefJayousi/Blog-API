@@ -3,11 +3,17 @@ const Profile = require('../Controllers/UserProfileController');
 const passport = require('passport');
 const router = express.Router();
 
-
-
 /* GET users listing. */
-router.get('/',passport.authenticate('jwt', { session: false }), Profile.profile);
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  Profile.profile
+);
 
 //Update user email or username
-router.put('/update_profile' , passport.authenticate('jwt', { session: false }) , Profile.updateProfile)
+router.put(
+  '/update_profile',
+  passport.authenticate('jwt', { session: false }),
+  Profile.updateProfile
+);
 module.exports = router;

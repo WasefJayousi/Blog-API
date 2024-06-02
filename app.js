@@ -1,35 +1,37 @@
 require('dotenv').config();
-require("./Configs/cache-redis");
+require('./Configs/cache-redis');
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const mongoose = require("mongoose");
-const cors = require("cors");
+const mongoose = require('mongoose');
+const cors = require('cors');
 const passport = require('passport');
-require("./Configs/passport-config")(passport);
+require('./Configs/passport-config')(passport);
 
-const AuthRouter = require("./routes/AuthRouter")
-const CommentRouter = require("./routes/CommentRouter")
-const PostRouter = require("./routes/PostRouter")
-const UserProfileRouter = require("./routes/UserProfileRouter")
+const AuthRouter = require('./routes/AuthRouter');
+const CommentRouter = require('./routes/CommentRouter');
+const PostRouter = require('./routes/PostRouter');
+const UserProfileRouter = require('./routes/UserProfileRouter');
 
-
-
-mongoose.set("strictQuery", false);
+mongoose.set('strictQuery', false);
 
 // Define the database URL to connect to.
-const mongoDB =  process.env.MongoDB_URL;
+const mongoDB = process.env.MongoDB_URL;
 
 // Wait for database to connect, logging an error if there is a problem
-main().catch((err) => console.log(err));
+main().catch(err => console.log(err));
 async function main() {
-  console.log("Debug: connecting to MongoDb")
+  console.log('Debug: connecting to MongoDb');
   await mongoose.connect(mongoDB);
-  console.log("Debug: Should be Connected?")
+  console.log('Debug: Should be Connected?');
 }
-const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:3000','https://'];
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://',
+];
 // Create a custom CORS middleware that checks the origin header
 const corsOptions = {
   origin: function (origin, callback) {
@@ -58,17 +60,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api_Authentication',AuthRouter)
-app.use('/api_Comment',CommentRouter)
-app.use('/api_Post' , PostRouter)
-app.use('/api_Profile' , UserProfileRouter)
+app.use('/api_Authentication', AuthRouter);
+app.use('/api_Comment', CommentRouter);
+app.use('/api_Post', PostRouter);
+app.use('/api_Profile', UserProfileRouter);
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -76,6 +78,6 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-}); 
+});
 
 module.exports = app;
